@@ -1,0 +1,8 @@
+# Python dependencies for the Enhanced Local AI Package Service Manager
+# Install with: pip install -r requirements.txt
+
+# YAML parsing for services.yml configuration
+PyYAML>=6.0
+
+# Optional: For better error handling and validation
+# jsonschema>=4.0  # Uncomment if you want JSON schema validation
