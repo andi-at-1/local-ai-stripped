@@ -1,0 +1,344 @@
+{
+  "_comment": "Local AI Package Service Configuration - Enable/disable services, configure ports, and customize your stack",
+  "global": {
+    "project_name": "localai",
+    "default_host_ip": "127.0.0.1"
+  },
+  "services": {
+    "n8n": {
+      "enabled": true,
+      "description": "Low-code workflow automation platform with 400+ integrations and advanced AI components",
+      "category": "workflow",
+      "reverse_proxy": true,
+      "ports": [
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 5678,
+          "container_port": 5678,
+          "protocol": "tcp"
+        }
+      ],
+      "depends_on": ["postgres"],
+      "profiles": ["all"]
+    },
+    "open-webui": {
+      "enabled": true,
+      "description": "ChatGPT-like interface to privately interact with your local models and AI agents",
+      "category": "interface",
+      "reverse_proxy": true,
+      "ports": [
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 8080,
+          "container_port": 8080,
+          "protocol": "tcp"
+        }
+      ],
+      "profiles": ["all"]
+    },
+    "flowise": {
+      "enabled": true,
+      "description": "No-code/low-code AI agent builder that pairs perfectly with n8n workflows",
+      "category": "ai-builder",
+      "reverse_proxy": true,
+      "ports": [
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 3001,
+          "container_port": 3001,
+          "protocol": "tcp"
+        }
+      ],
+      "profiles": ["all"]
+    },
+    "ollama-cpu": {
+      "enabled": true,
+      "description": "Local LLM serving platform optimized for CPU inference",
+      "category": "llm",
+      "reverse_proxy": false,
+      "ports": [
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 11434,
+          "container_port": 11434,
+          "protocol": "tcp"
+        }
+      ],
+      "profiles": ["cpu"]
+    },
+    "ollama-gpu": {
+      "enabled": false,
+      "description": "Local LLM serving platform optimized for NVIDIA GPU inference",
+      "category": "llm",
+      "reverse_proxy": false,
+      "ports": [
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 11434,
+          "container_port": 11434,
+          "protocol": "tcp"
+        }
+      ],
+      "profiles": ["gpu-nvidia"]
+    },
+    "ollama-gpu-amd": {
+      "enabled": false,
+      "description": "Local LLM serving platform optimized for AMD GPU inference",
+      "category": "llm",
+      "reverse_proxy": false,
+      "ports": [
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 11434,
+          "container_port": 11434,
+          "protocol": "tcp"
+        }
+      ],
+      "profiles": ["gpu-amd"]
+    },
+    "qdrant": {
+      "enabled": true,
+      "description": "High-performance vector database for semantic search and RAG applications",
+      "category": "database",
+      "reverse_proxy": false,
+      "ports": [
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 6333,
+          "container_port": 6333,
+          "protocol": "tcp"
+        },
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 6334,
+          "container_port": 6334,
+          "protocol": "tcp"
+        }
+      ],
+      "profiles": ["all"]
+    },
+    "neo4j": {
+      "enabled": true,
+      "description": "Graph database engine for knowledge graphs, GraphRAG, and relationship modeling",
+      "category": "database",
+      "reverse_proxy": true,
+      "ports": [
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 7473,
+          "container_port": 7473,
+          "protocol": "tcp"
+        },
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 7474,
+          "container_port": 7474,
+          "protocol": "tcp"
+        },
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 7687,
+          "container_port": 7687,
+          "protocol": "tcp"
+        }
+      ],
+      "profiles": ["all"]
+    },
+    "postgres": {
+      "enabled": true,
+      "description": "PostgreSQL database for data storage and vector operations (via Supabase)",
+      "category": "database",
+      "reverse_proxy": false,
+      "ports": [
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 5433,
+          "container_port": 5432,
+          "protocol": "tcp"
+        }
+      ],
+      "profiles": ["all"],
+      "supabase": true
+    },
+    "searxng": {
+      "enabled": true,
+      "description": "Privacy-focused metasearch engine aggregating results from 229+ search services",
+      "category": "search",
+      "reverse_proxy": true,
+      "ports": [
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 8081,
+          "container_port": 8080,
+          "protocol": "tcp"
+        }
+      ],
+      "profiles": ["all"]
+    },
+    "langfuse-web": {
+      "enabled": true,
+      "description": "LLM engineering platform for observability, analytics, and prompt management",
+      "category": "observability",
+      "reverse_proxy": true,
+      "ports": [
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 3000,
+          "container_port": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "depends_on": ["langfuse-worker", "postgres", "clickhouse", "redis", "minio"],
+      "profiles": ["all"]
+    },
+    "langfuse-worker": {
+      "enabled": true,
+      "description": "Background worker for Langfuse data processing and analytics",
+      "category": "observability",
+      "reverse_proxy": false,
+      "ports": [
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 3030,
+          "container_port": 3030,
+          "protocol": "tcp"
+        }
+      ],
+      "depends_on": ["postgres", "clickhouse", "redis", "minio"],
+      "profiles": ["all"]
+    },
+    "clickhouse": {
+      "enabled": true,
+      "description": "Columnar database for high-performance analytics and event data storage",
+      "category": "database",
+      "reverse_proxy": false,
+      "ports": [
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 8123,
+          "container_port": 8123,
+          "protocol": "tcp"
+        },
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 9000,
+          "container_port": 9000,
+          "protocol": "tcp"
+        },
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 9009,
+          "container_port": 9009,
+          "protocol": "tcp"
+        }
+      ],
+      "profiles": ["all"]
+    },
+    "minio": {
+      "enabled": true,
+      "description": "S3-compatible object storage for file uploads and media management",
+      "category": "storage",
+      "reverse_proxy": false,
+      "ports": [
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 9010,
+          "container_port": 9000,
+          "protocol": "tcp"
+        },
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 9011,
+          "container_port": 9001,
+          "protocol": "tcp"
+        }
+      ],
+      "profiles": ["all"]
+    },
+    "redis": {
+      "enabled": true,
+      "description": "In-memory cache and session store for improved performance",
+      "category": "cache",
+      "reverse_proxy": false,
+      "ports": [
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 6379,
+          "container_port": 6379,
+          "protocol": "tcp"
+        }
+      ],
+      "profiles": ["all"]
+    },
+    "caddy": {
+      "enabled": true,
+      "description": "Automatic HTTPS reverse proxy with Let's Encrypt integration",
+      "category": "proxy",
+      "reverse_proxy": false,
+      "ports": [
+        {
+          "host_ip": "0.0.0.0",
+          "host_port": 80,
+          "container_port": 80,
+          "protocol": "tcp"
+        },
+        {
+          "host_ip": "0.0.0.0",
+          "host_port": 443,
+          "container_port": 443,
+          "protocol": "tcp"
+        }
+      ],
+      "profiles": ["all"]
+    },
+    "portainer": {
+      "enabled": false,
+      "description": "Web-based Docker container management interface for easy service administration",
+      "category": "management",
+      "reverse_proxy": true,
+      "ports": [
+        {
+          "host_ip": "127.0.0.1",
+          "host_port": 9000,
+          "container_port": 9000,
+          "protocol": "tcp"
+        }
+      ],
+      "profiles": ["all"]
+    }
+  },
+  "profiles": {
+    "cpu": {
+      "description": "CPU-only setup suitable for development and light workloads",
+      "included_services": [
+        "n8n", "open-webui", "flowise", "ollama-cpu", "qdrant", "neo4j",
+        "postgres", "searxng", "langfuse-web", "langfuse-worker",
+        "clickhouse", "minio", "redis", "caddy"
+      ]
+    },
+    "gpu-nvidia": {
+      "description": "NVIDIA GPU-accelerated setup for high-performance LLM inference",
+      "included_services": [
+        "n8n", "open-webui", "flowise", "ollama-gpu", "qdrant", "neo4j",
+        "postgres", "searxng", "langfuse-web", "langfuse-worker",
+        "clickhouse", "minio", "redis", "caddy"
+      ]
+    },
+    "gpu-amd": {
+      "description": "AMD GPU-accelerated setup for ROCm-based LLM inference",
+      "included_services": [
+        "n8n", "open-webui", "flowise", "ollama-gpu-amd", "qdrant", "neo4j",
+        "postgres", "searxng", "langfuse-web", "langfuse-worker",
+        "clickhouse", "minio", "redis", "caddy"
+      ]
+    },
+    "none": {
+      "description": "Minimal setup without local LLM serving (external Ollama)",
+      "included_services": [
+        "n8n", "open-webui", "flowise", "qdrant", "neo4j",
+        "postgres", "searxng", "langfuse-web", "langfuse-worker",
+        "clickhouse", "minio", "redis", "caddy"
+      ]
+    }
+  }
+}

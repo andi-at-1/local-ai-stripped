@@ -19,25 +19,24 @@ import time
 import argparse
 import platform
 import sys
-import yaml
 import json
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
 class ServiceManager:
-    def __init__(self, config_file: str = "services.yml"):
+    def __init__(self, config_file: str = "services.json"):
         self.config_file = config_file
         self.config = self.load_config()
         self.project_name = self.config.get('global', {}).get('project_name', 'localai')
         self.default_host_ip = self.config.get('global', {}).get('default_host_ip', '127.0.0.1')
         
     def load_config(self) -> Dict[str, Any]:
-        """Load service configuration from YAML file."""
+        """Load service configuration from JSON file."""
         if not os.path.exists(self.config_file):
             raise FileNotFoundError(f"Configuration file {self.config_file} not found")
         
         with open(self.config_file, 'r') as file:
-            config = yaml.safe_load(file)
+            config = json.load(file)
             
         # Substitute variables in the configuration
         self._substitute_variables(config)
@@ -87,7 +86,7 @@ class ServiceManager:
         print("✓ Configuration validation passed")
         return True
     
-    def get_enabled_services(self, profile: str = None) -> List[str]:
+    def get_enabled_services(self, profile: Optional[str] = None) -> List[str]:
         """Get list of enabled services, optionally filtered by profile."""
         enabled_services = []
         
@@ -147,10 +146,14 @@ class ServiceManager:
                     'ports': port_mappings
                 }
         
-        # Write override file
+        # Write override file as YAML format (we'll generate YAML manually without PyYAML)
         override_filename = f"docker-compose.override.{environment}.generated.yml"
+        
+        # Convert to YAML format manually
+        yaml_content = self._dict_to_yaml(override_config)
+        
         with open(override_filename, 'w') as file:
-            yaml.dump(override_config, file, default_flow_style=False, sort_keys=False)
+            file.write(yaml_content)
         
         print(f"✓ Generated override file: {override_filename}")
         return override_filename
@@ -208,6 +211,27 @@ class ServiceManager:
             'portainer': '$PORTAINER_HOSTNAME'
         }
         return hostname_map.get(service_name, f'${service_name.upper().replace("-", "_")}_HOSTNAME')
+    
+    def _dict_to_yaml(self, data: Dict[str, Any], indent: int = 0) -> str:
+        """Convert dictionary to YAML format without using PyYAML."""
+        yaml_lines = []
+        indent_str = "  " * indent
+        
+        for key, value in data.items():
+            if isinstance(value, dict):
+                yaml_lines.append(f"{indent_str}{key}:")
+                yaml_lines.append(self._dict_to_yaml(value, indent + 1))
+            elif isinstance(value, list):
+                yaml_lines.append(f"{indent_str}{key}:")
+                for item in value:
+                    if isinstance(item, str):
+                        yaml_lines.append(f"{indent_str}  - {item}")
+                    else:
+                        yaml_lines.append(f"{indent_str}  - {item}")
+            else:
+                yaml_lines.append(f"{indent_str}{key}: {value}")
+        
+        return "\n".join(yaml_lines)
     
     def print_service_summary(self, services: List[str], profile: str) -> None:
         """Print a summary of enabled services and their access URLs."""
@@ -374,8 +398,8 @@ def main():
                       help='Profile to use for Docker Compose (default: cpu)')
     parser.add_argument('--environment', choices=['private', 'public'], default='private',
                       help='Environment to use for Docker Compose (default: private)')
-    parser.add_argument('--config', default='services.yml',
-                      help='Service configuration file (default: services.yml)')
+    parser.add_argument('--config', default='services.json',
+                      help='Service configuration file (default: services.json)')
     parser.add_argument('--no-supabase', action='store_true',
                       help='Skip Supabase setup and startup')
     parser.add_argument('--dry-run', action='store_true',
@@ -390,7 +414,7 @@ def main():
         service_manager = ServiceManager(args.config)
     except FileNotFoundError as e:
         print(f"Error: {e}")
-        print("Please ensure services.yml exists or specify a different config file with --config")
+        print("Please ensure services.json exists or specify a different config file with --config")
         sys.exit(1)
     
     # List services if requested
